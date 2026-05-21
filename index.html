@@ -184,12 +184,14 @@
 
 <div class="background-container">
     
+    <!-- LEWY PANEL: DRUŻYNA MARTYNY -->
     <div class="team-panel">
-        <div class="team-name">Drużyna Leszka</div>
-        <div class="score-display" id="scoreLeszek">0</div>
-        <button class="spin-btn-team" id="btnLeszek">Leszek kręci</button>
+        <div class="team-name">Drużyna Martyny</div>
+        <div class="score-display" id="scoreMartyna">0</div>
+        <button class="spin-btn-team" id="btnMartyna">Martyna kręci</button>
     </div>
 
+    <!-- ŚRODEK: KOŁO FORTUNY -->
     <div class="wheel-area">
         <div class="pointer"></div>
         <div class="wheel-center"></div>
@@ -200,17 +202,20 @@
         </div>
     </div>
 
+    <!-- PRAWY PANEL: DRUŻYNA LESZKA -->
     <div class="team-panel">
-        <div class="team-name">Drużyna Martyny</div>
-        <div class="score-display" id="scoreMartyna">0</div>
-        <button class="spin-btn-team" id="btnMartyna">Martyna kręci</button>
+        <div class="team-name">Drużyna Leszka</div>
+        <div class="score-display" id="scoreLeszek">0</div>
+        <button class="spin-btn-team" id="btnLeszek">Leszek kręci</button>
     </div>
 
+    <!-- KOMUNIKAT NA DOLE -->
     <div class="result-display" id="resultDisplay">Wynik: -</div>
 </div>
 
 <script>
-    const segments = ["5", "10", "25", "50", "-50", "-25", "kręć\n2 razy"];
+    const segments = ["5", "10", "25", "50", "-50", "-25", "kręć
+2 razy"];
     const colors = ["#1a1a1a", "#d4af37", "#333333", "#b8901c", "#222222", "#e5c158", "#444444"];
     
     const numSegments = segments.length;
@@ -240,7 +245,8 @@
         
         textG.setAttribute("transform", `rotate(${textAngle} 100 100) translate(100, 32)`);
         
-        const textLines = segments[i].split('\n');
+        const textLines = segments[i].split('
+');
         textLines.forEach((line, index) => {
             const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
             text.textContent = line;
@@ -360,11 +366,12 @@
             winningIndex = (winningIndex + numSegments) % numSegments;
             
             const prizeRaw = segments[winningIndex];
-            const prizeClean = prizeRaw.replace('\n', ' ');
+            const prizeClean = prizeRaw.replace('
+', ' ');
 
             // Logika punktacji
             if (prizeRaw.includes("kręć")) {
-                resultDisplay.innerText = `${activePlayer} losuje: ${prizeClean}!`;
+                resultDisplay.innerText = `Drużyna ${activePlayer === 'Leszek' ? 'Leszka' : 'Martyny'} losuje: ${prizeClean}!`;
             } else {
                 const points = parseInt(prizeRaw, 10);
                 scores[activePlayer] += points;
@@ -376,7 +383,12 @@
                     scoreMartynaEl.innerText = scores.Martyna;
                 }
                 
-                resultDisplay.innerText = `${activePlayer} zdobywa: ${points} pkt!`;
+                const displayPlayerName = activePlayer === 'Leszek' ? 'Leszka' : 'Martyny';
+                if (points > 0) {
+                    resultDisplay.innerText = `Drużyna ${displayPlayerName} zdobywa: +${points} pkt!`;
+                } else {
+                    resultDisplay.innerText = `Drużyna ${displayPlayerName} traci: ${points} pkt!`;
+                }
             }
             
             resultDisplay.style.display = 'block';
