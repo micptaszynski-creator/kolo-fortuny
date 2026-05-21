@@ -137,7 +137,7 @@
             filter: drop-shadow(0px 5px 4px rgba(0,0,0,0.5));
         }
 
-        /* Ozdobny środek koła zamiast starego przycisku */
+        /* Środek koła */
         .wheel-center {
             position: absolute;
             top: 50%;
@@ -184,14 +184,12 @@
 
 <div class="background-container">
     
-    <!-- LEWY PANEL: DRUŻYNA MARTYNY -->
     <div class="team-panel">
         <div class="team-name">Drużyna Martyny</div>
         <div class="score-display" id="scoreMartyna">0</div>
         <button class="spin-btn-team" id="btnMartyna">Martyna kręci</button>
     </div>
 
-    <!-- ŚRODEK: KOŁO FORTUNY -->
     <div class="wheel-area">
         <div class="pointer"></div>
         <div class="wheel-center"></div>
@@ -202,27 +200,24 @@
         </div>
     </div>
 
-    <!-- PRAWY PANEL: DRUŻYNA LESZKA -->
     <div class="team-panel">
         <div class="team-name">Drużyna Leszka</div>
         <div class="score-display" id="scoreLeszek">0</div>
         <button class="spin-btn-team" id="btnLeszek">Leszek kręci</button>
     </div>
 
-    <!-- KOMUNIKAT NA DOLE -->
     <div class="result-display" id="resultDisplay">Wynik: -</div>
 </div>
 
 <script>
-    const segments = ["5", "10", "25", "50", "-50", "-25", "kręć
-2 razy"];
+    const segments = ["5", "10", "25", "50", "-50", "-25", "kręć\n2 razy"];
     const colors = ["#1a1a1a", "#d4af37", "#333333", "#b8901c", "#222222", "#e5c158", "#444444"];
     
     const numSegments = segments.length;
     const anglePerSegment = 360 / numSegments;
     const wheelGroup = document.getElementById('wheel-group');
 
-    // Generowanie pól SVG
+    // Generowanie pól SVG koła
     for (let i = 0; i < numSegments; i++) {
         const startAngle = i * anglePerSegment;
         const endAngle = startAngle + anglePerSegment;
@@ -245,8 +240,7 @@
         
         textG.setAttribute("transform", `rotate(${textAngle} 100 100) translate(100, 32)`);
         
-        const textLines = segments[i].split('
-');
+        const textLines = segments[i].split('\n');
         textLines.forEach((line, index) => {
             const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
             text.textContent = line;
@@ -259,7 +253,6 @@
         wheelGroup.appendChild(textG);
     }
 
-    // Zmienne stanu gry
     const wheel = document.getElementById('wheel');
     const resultDisplay = document.getElementById('resultDisplay');
     const btnLeszek = document.getElementById('btnLeszek');
@@ -269,7 +262,7 @@
 
     let currentRotation = 0;
     let isSpinning = false;
-    let activePlayer = ""; // Przechowuje informację, kto kliknął ("Leszek" lub "Martyna")
+    let activePlayer = ""; 
 
     let scores = {
         Leszek: 0,
@@ -331,7 +324,6 @@
         }, interval);
     }
 
-    // Wspólna funkcja uruchamiająca kręcenie
     function spinWheel(player) {
         if (isSpinning) return;
         
@@ -339,7 +331,6 @@
         isSpinning = true;
         activePlayer = player;
 
-        // Blokujemy oba przyciski podczas kręcenia
         btnLeszek.disabled = true;
         btnMartyna.disabled = true;
         resultDisplay.style.display = 'none';
@@ -356,27 +347,22 @@
         setTimeout(() => {
             isSpinning = false;
             
-            // Odblokowanie przycisków
             btnLeszek.disabled = false;
             btnMartyna.disabled = false;
 
-            // Obliczanie wylosowanego pola
             let actualAngle = (360 - (currentRotation % 360)) % 360;
             let winningIndex = Math.floor(actualAngle / anglePerSegment);
             winningIndex = (winningIndex + numSegments) % numSegments;
             
             const prizeRaw = segments[winningIndex];
-            const prizeClean = prizeRaw.replace('
-', ' ');
+            const prizeClean = prizeRaw.replace('\n', ' ');
 
-            // Logika punktacji
             if (prizeRaw.includes("kręć")) {
                 resultDisplay.innerText = `Drużyna ${activePlayer === 'Leszek' ? 'Leszka' : 'Martyny'} losuje: ${prizeClean}!`;
             } else {
                 const points = parseInt(prizeRaw, 10);
                 scores[activePlayer] += points;
                 
-                // Aktualizacja tabeli wyników na ekranie
                 if (activePlayer === "Leszek") {
                     scoreLeszekEl.innerText = scores.Leszek;
                 } else {
@@ -396,7 +382,6 @@
         }, 7000);
     }
 
-    // Podpięcie zdarzeń pod przyciski drużynowe
     btnLeszek.addEventListener('click', () => spinWheel('Leszek'));
     btnMartyna.addEventListener('click', () => spinWheel('Martyna'));
 </script>
