@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Koło Fortuny - Audio Edition</title>
+    <title>Koło Fortuny - Bitwa Drużyn</title>
     <style>
         * {
             box-sizing: border-box;
@@ -19,6 +19,7 @@
             justify-content: center;
             align-items: center;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
         }
 
         /* Kontener całoekranowy */
@@ -30,6 +31,69 @@
             background-size: contain; 
             background-position: center;
             background-repeat: no-repeat;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 5%;
+        }
+
+        /* Panele drużyn po bokach */
+        .team-panel {
+            width: 220px;
+            background: rgba(26, 26, 26, 0.85);
+            border: 3px solid #d4af37;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 20;
+            color: #fff;
+        }
+
+        .team-name {
+            font-size: 22px;
+            font-weight: bold;
+            color: #d4af37;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .score-display {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 15px 0;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255,255,255,0.2);
+        }
+
+        /* Przyciski kręcenia dla drużyn */
+        .spin-btn-team {
+            width: 100%;
+            background: linear-gradient(135deg, #b8901c 0%, #d4af37 50%, #e5c158 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #111;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: transform 0.1s, filter 0.2s;
+        }
+
+        .spin-btn-team:hover:not(:disabled) {
+            filter: brightness(1.1);
+        }
+
+        .spin-btn-team:active:not(:disabled) {
+            transform: scale(0.96);
+        }
+
+        .spin-btn-team:disabled {
+            background: #444;
+            color: #888;
+            cursor: not-allowed;
+            box-shadow: none;
         }
 
         /* Obszar koła */
@@ -49,7 +113,6 @@
             height: 100%;
         }
 
-        /* Tarcza koła SVG z płynnym hamowaniem (7 sekund) */
         .wheel-svg {
             width: 100%;
             height: 100%;
@@ -61,7 +124,6 @@
             display: block;
         }
 
-        /* Znacznik / Strzałka u góry */
         .pointer {
             position: absolute;
             top: -18px;
@@ -75,35 +137,21 @@
             filter: drop-shadow(0px 5px 4px rgba(0,0,0,0.5));
         }
 
-        /* Przycisk START */
-        .spin-button {
+        /* Ozdobny środek koła zamiast starego przycisku */
+        .wheel-center {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 75px;
-            height: 75px;
-            background: radial-gradient(circle, #fff 0%, #f3f3f3 60%, #d4af37 100%);
-            border: 3px solid #d4af37;
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle, #fff 0%, #d4af37 100%);
+            border: 3px solid #b8901c;
             border-radius: 50%;
-            cursor: pointer;
             z-index: 25;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            font-size: 14px;
-            color: #222;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.8);
-            user-select: none;
-            transition: transform 0.1s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
         }
 
-        .spin-button:active {
-            transform: translate(-50%, -50%) scale(0.92);
-        }
-
-        /* Styl napisów wewnątrz SVG */
         .wheel-text {
             font-weight: bold;
             font-size: 14px;
@@ -135,15 +183,27 @@
 <body>
 
 <div class="background-container">
+    
+    <div class="team-panel">
+        <div class="team-name">Drużyna Leszka</div>
+        <div class="score-display" id="scoreLeszek">0</div>
+        <button class="spin-btn-team" id="btnLeszek">Leszek kręci</button>
+    </div>
+
     <div class="wheel-area">
         <div class="pointer"></div>
-        <div class="spin-button" id="spinBtn">START</div>
-        
+        <div class="wheel-center"></div>
         <div class="wheel-wrapper">
             <svg class="wheel-svg" id="wheel" viewBox="0 0 200 200">
                 <g id="wheel-group"></g>
             </svg>
         </div>
+    </div>
+
+    <div class="team-panel">
+        <div class="team-name">Drużyna Martyny</div>
+        <div class="score-display" id="scoreMartyna">0</div>
+        <button class="spin-btn-team" id="btnMartyna">Martyna kręci</button>
     </div>
 
     <div class="result-display" id="resultDisplay">Wynik: -</div>
@@ -157,7 +217,7 @@
     const anglePerSegment = 360 / numSegments;
     const wheelGroup = document.getElementById('wheel-group');
 
-    // Generowanie koła SVG
+    // Generowanie pól SVG
     for (let i = 0; i < numSegments; i++) {
         const startAngle = i * anglePerSegment;
         const endAngle = startAngle + anglePerSegment;
@@ -193,84 +253,67 @@
         wheelGroup.appendChild(textG);
     }
 
+    // Zmienne stanu gry
     const wheel = document.getElementById('wheel');
-    const spinBtn = document.getElementById('spinBtn');
     const resultDisplay = document.getElementById('resultDisplay');
+    const btnLeszek = document.getElementById('btnLeszek');
+    const btnMartyna = document.getElementById('btnMartyna');
+    const scoreLeszekEl = document.getElementById('scoreLeszek');
+    const scoreMartynaEl = document.getElementById('scoreMartyna');
 
     let currentRotation = 0;
     let isSpinning = false;
+    let activePlayer = ""; // Przechowuje informację, kto kliknął ("Leszek" lub "Martyna")
 
-    // --- SYNTEZA DŹWIĘKÓW (Web Audio API) ---
+    let scores = {
+        Leszek: 0,
+        Martyna: 0
+    };
+
+    // --- SYNTEZA AUDIO ---
     let audioCtx = null;
+    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
 
-    function initAudio() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-    }
-
-    // Krótkie "kliknięcie" (cykanie tarczy o wskaźnik)
     function playClickSound() {
         if (!audioCtx) return;
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(400, audioCtx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 0.04);
-        
         gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
-        
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.05);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.05);
     }
 
-    // Krótkie, radosne fanfary po wygranej
     function playWinSound() {
         if (!audioCtx) return;
-        const notes = [261.63, 329.63, 392.00, 523.25]; // C4, E4, G4, C5
+        const notes = [261.63, 329.63, 392.00, 523.25];
         const now = audioCtx.currentTime;
-        
         notes.forEach((freq, index) => {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            
             osc.type = 'sine';
             osc.frequency.setValueAtTime(freq, now + index * 0.12);
-            
             gain.gain.setValueAtTime(0, now + index * 0.12);
             gain.gain.linearRampToValueAtTime(0.2, now + index * 0.12 + 0.02);
             gain.gain.exponentialRampToValueAtTime(0.001, now + index * 0.12 + 0.3);
-            
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start(now + index * 0.12);
-            osc.stop(now + index * 0.12 + 0.35);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(now + index * 0.12); osc.stop(now + index * 0.12 + 0.35);
         });
     }
 
-    // Funkcja do symulacji cykania dopasowanego do prędkości koła
     function simulateClicking(totalDuration, totalDegrees) {
         let elapsed = 0;
-        const interval = 20; // sprawdzenie pozycji co 20ms
+        const interval = 20;
         let lastSegmentIndex = -1;
-
-        // Krzywa odpowiadająca cubic-bezier(0.1, 0.9, 0.15, 1)
-        function getProgress(t) {
-            return 1 - Math.pow(1 - t, 4); // przybliżenie spowolnienia
-        }
+        function getProgress(t) { return 1 - Math.pow(1 - t, 4); }
 
         const checkClick = setInterval(() => {
             elapsed += interval;
             const t = elapsed / totalDuration;
-            
-            if (t >= 1) {
-                clearInterval(checkClick);
-                return;
-            }
+            if (t >= 1) { clearInterval(checkClick); return; }
 
             const currentProgressDegrees = totalDegrees * getProgress(t);
             const currentSegmentIndex = Math.floor((currentProgressDegrees % 360) / anglePerSegment);
@@ -282,13 +325,17 @@
         }, interval);
     }
 
-    // Obsługa kliknięcia START
-    spinBtn.addEventListener('click', () => {
+    // Wspólna funkcja uruchamiająca kręcenie
+    function spinWheel(player) {
         if (isSpinning) return;
         
-        initAudio(); // Aktywacja audio context po interakcji użytkownika
-        
+        initAudio();
         isSpinning = true;
+        activePlayer = player;
+
+        // Blokujemy oba przyciski podczas kręcenia
+        btnLeszek.disabled = true;
+        btnMartyna.disabled = true;
         resultDisplay.style.display = 'none';
 
         const randomSpins = Math.floor(Math.random() * 5) + 8; 
@@ -298,25 +345,48 @@
         currentRotation += additionalDegrees;
         wheel.style.transform = `rotate(${currentRotation}deg)`;
 
-        // Uruchomienie efektu dźwiękowego klikania (trwa 7000ms)
         simulateClicking(7000, additionalDegrees);
 
         setTimeout(() => {
             isSpinning = false;
             
+            // Odblokowanie przycisków
+            btnLeszek.disabled = false;
+            btnMartyna.disabled = false;
+
+            // Obliczanie wylosowanego pola
             let actualAngle = (360 - (currentRotation % 360)) % 360;
             let winningIndex = Math.floor(actualAngle / anglePerSegment);
             winningIndex = (winningIndex + numSegments) % numSegments;
             
-            const prize = segments[winningIndex].replace('\n', ' ');
+            const prizeRaw = segments[winningIndex];
+            const prizeClean = prizeRaw.replace('\n', ' ');
+
+            // Logika punktacji
+            if (prizeRaw.includes("kręć")) {
+                resultDisplay.innerText = `${activePlayer} losuje: ${prizeClean}!`;
+            } else {
+                const points = parseInt(prizeRaw, 10);
+                scores[activePlayer] += points;
+                
+                // Aktualizacja tabeli wyników na ekranie
+                if (activePlayer === "Leszek") {
+                    scoreLeszekEl.innerText = scores.Leszek;
+                } else {
+                    scoreMartynaEl.innerText = scores.Martyna;
+                }
+                
+                resultDisplay.innerText = `${activePlayer} zdobywa: ${points} pkt!`;
+            }
             
-            resultDisplay.innerText = `Wylosowano: ${prize}`;
             resultDisplay.style.display = 'block';
-            
-            // Odtwórz dźwięk wygranej
             playWinSound();
-        }, 7000); 
-    });
+        }, 7000);
+    }
+
+    // Podpięcie zdarzeń pod przyciski drużynowe
+    btnLeszek.addEventListener('click', () => spinWheel('Leszek'));
+    btnMartyna.addEventListener('click', () => spinWheel('Martyna'));
 </script>
 
 </body>
