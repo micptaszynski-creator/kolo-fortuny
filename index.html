@@ -137,7 +137,7 @@
             filter: drop-shadow(0px 5px 4px rgba(0,0,0,0.5));
         }
 
-        /* Środek koła */
+        /* Ozdobny środek koła zamiast starego przycisku */
         .wheel-center {
             position: absolute;
             top: 50%;
@@ -185,9 +185,9 @@
 <div class="background-container">
     
     <div class="team-panel">
-        <div class="team-name">Drużyna Martyny</div>
-        <div class="score-display" id="scoreMartyna">0</div>
-        <button class="spin-btn-team" id="btnMartyna">Martyna kręci</button>
+        <div class="team-name">Drużyna Leszka</div>
+        <div class="score-display" id="scoreLeszek">0</div>
+        <button class="spin-btn-team" id="btnLeszek">Leszek kręci</button>
     </div>
 
     <div class="wheel-area">
@@ -201,9 +201,9 @@
     </div>
 
     <div class="team-panel">
-        <div class="team-name">Drużyna Leszka</div>
-        <div class="score-display" id="scoreLeszek">0</div>
-        <button class="spin-btn-team" id="btnLeszek">Leszek kręci</button>
+        <div class="team-name">Drużyna Martyny</div>
+        <div class="score-display" id="scoreMartyna">0</div>
+        <button class="spin-btn-team" id="btnMartyna">Martyna kręci</button>
     </div>
 
     <div class="result-display" id="resultDisplay">Wynik: -</div>
@@ -217,7 +217,7 @@
     const anglePerSegment = 360 / numSegments;
     const wheelGroup = document.getElementById('wheel-group');
 
-    // Generowanie pól SVG koła
+    // Generowanie pól SVG
     for (let i = 0; i < numSegments; i++) {
         const startAngle = i * anglePerSegment;
         const endAngle = startAngle + anglePerSegment;
@@ -253,6 +253,7 @@
         wheelGroup.appendChild(textG);
     }
 
+    // Zmienne stanu gry
     const wheel = document.getElementById('wheel');
     const resultDisplay = document.getElementById('resultDisplay');
     const btnLeszek = document.getElementById('btnLeszek');
@@ -262,7 +263,7 @@
 
     let currentRotation = 0;
     let isSpinning = false;
-    let activePlayer = ""; 
+    let activePlayer = ""; // Przechowuje informację, kto kliknął ("Leszek" lub "Martyna")
 
     let scores = {
         Leszek: 0,
@@ -324,6 +325,7 @@
         }, interval);
     }
 
+    // Wspólna funkcja uruchamiająca kręcenie
     function spinWheel(player) {
         if (isSpinning) return;
         
@@ -331,6 +333,7 @@
         isSpinning = true;
         activePlayer = player;
 
+        // Blokujemy oba przyciski podczas kręcenia
         btnLeszek.disabled = true;
         btnMartyna.disabled = true;
         resultDisplay.style.display = 'none';
@@ -347,9 +350,11 @@
         setTimeout(() => {
             isSpinning = false;
             
+            // Odblokowanie przycisków
             btnLeszek.disabled = false;
             btnMartyna.disabled = false;
 
+            // Obliczanie wylosowanego pola
             let actualAngle = (360 - (currentRotation % 360)) % 360;
             let winningIndex = Math.floor(actualAngle / anglePerSegment);
             winningIndex = (winningIndex + numSegments) % numSegments;
@@ -357,24 +362,21 @@
             const prizeRaw = segments[winningIndex];
             const prizeClean = prizeRaw.replace('\n', ' ');
 
+            // Logika punktacji
             if (prizeRaw.includes("kręć")) {
-                resultDisplay.innerText = `Drużyna ${activePlayer === 'Leszek' ? 'Leszka' : 'Martyny'} losuje: ${prizeClean}!`;
+                resultDisplay.innerText = `${activePlayer} losuje: ${prizeClean}!`;
             } else {
                 const points = parseInt(prizeRaw, 10);
                 scores[activePlayer] += points;
                 
+                // Aktualizacja tabeli wyników na ekranie
                 if (activePlayer === "Leszek") {
                     scoreLeszekEl.innerText = scores.Leszek;
                 } else {
                     scoreMartynaEl.innerText = scores.Martyna;
                 }
                 
-                const displayPlayerName = activePlayer === 'Leszek' ? 'Leszka' : 'Martyny';
-                if (points > 0) {
-                    resultDisplay.innerText = `Drużyna ${displayPlayerName} zdobywa: +${points} pkt!`;
-                } else {
-                    resultDisplay.innerText = `Drużyna ${displayPlayerName} traci: ${points} pkt!`;
-                }
+                resultDisplay.innerText = `${activePlayer} zdobywa: ${points} pkt!`;
             }
             
             resultDisplay.style.display = 'block';
@@ -382,6 +384,7 @@
         }, 7000);
     }
 
+    // Podpięcie zdarzeń pod przyciski drużynowe
     btnLeszek.addEventListener('click', () => spinWheel('Leszek'));
     btnMartyna.addEventListener('click', () => spinWheel('Martyna'));
 </script>
