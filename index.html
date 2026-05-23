@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Koło Fortuny - Bitwa Drużyn</title>
+    <title>Koło Fortuny - Bitwa Drużyn i Piosenki</title>
     <style>
         * {
             box-sizing: border-box;
@@ -102,7 +102,7 @@
             width: 44.5vh; 
             height: 44.5vh;
             left: 50%;
-            top: 50.5%; 
+            top: 42%; 
             transform: translate(-50%, -50%);
             z-index: 10;
         }
@@ -137,7 +137,7 @@
             filter: drop-shadow(0px 5px 4px rgba(0,0,0,0.5));
         }
 
-        /* Ozdobny środek koła zamiast starego przycisku */
+        /* Środek koła */
         .wheel-center {
             position: absolute;
             top: 50%;
@@ -160,23 +160,128 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
         }
 
-        /* Wynik na dole */
+        /* Wynik na środku na dole */
         .result-display {
             position: absolute;
-            bottom: 6%;
+            bottom: 23%;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.95);
-            padding: 12px 35px;
+            padding: 10px 30px;
             border-radius: 25px;
             font-weight: bold;
-            font-size: 20px;
+            font-size: 18px;
             color: #111;
             border: 3px solid #d4af37;
             box-shadow: 0 6px 20px rgba(0,0,0,0.3);
             display: none;
             z-index: 40;
             text-align: center;
+        }
+
+        /* --- SEKCJA KONKURSU MUZYCZNEGO (NOWOŚĆ) --- */
+        .music-section {
+            position: absolute;
+            bottom: 2%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 750px;
+            background: rgba(26, 26, 26, 0.9);
+            border: 2px solid #d4af37;
+            border-radius: 16px;
+            padding: 10px 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 50;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+        }
+
+        .music-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #d4af37;
+            text-align: center;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .music-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr) auto;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .music-btn {
+            background: linear-gradient(135deg, #222 0%, #333 100%);
+            border: 1px solid #555;
+            border-radius: 8px;
+            padding: 10px 5px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .music-btn span {
+            font-size: 9px;
+            color: #aaa;
+            font-weight: normal;
+            margin-top: 2px;
+        }
+
+        /* Kolorowanie przycisków P (Pytanie) i W (Wynik) */
+        .btn-p:hover {
+            border-color: #d4af37;
+            background: linear-gradient(135deg, #b8901c 0%, #d4af37 100%);
+            color: #111;
+        }
+        .btn-p:hover span { color: #222; }
+
+        .btn-w:hover {
+            border-color: #2ecc71;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: #111;
+        }
+        .btn-w:hover span { color: #222; }
+
+        /* Efekt dla aktywnego odtwarzania */
+        .music-btn.playing {
+            border-color: #d4af37;
+            box-shadow: 0 0 10px #d4af37;
+            background: #d4af37;
+            color: #111;
+            animation: pulse 1s infinite alternate;
+        }
+        .music-btn.playing span { color: #222; }
+
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+
+        .music-stop-btn {
+            background: #e74c3c;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+            height: 100%;
+        }
+
+        .music-stop-btn:hover {
+            background: #c0392b;
         }
     </style>
 </head>
@@ -185,9 +290,9 @@
 <div class="background-container">
     
     <div class="team-panel">
-        <div class="team-name">Drużyna Leszka</div>
-        <div class="score-display" id="scoreLeszek">0</div>
-        <button class="spin-btn-team" id="btnLeszek">Leszek kręci</button>
+        <div class="team-name">Drużyna Martyny</div>
+        <div class="score-display" id="scoreMartyna">0</div>
+        <button class="spin-btn-team" id="btnMartyna">Martyna kręci</button>
     </div>
 
     <div class="wheel-area">
@@ -201,23 +306,55 @@
     </div>
 
     <div class="team-panel">
-        <div class="team-name">Drużyna Martyny</div>
-        <div class="score-display" id="scoreMartyna">0</div>
-        <button class="spin-btn-team" id="btnMartyna">Martyna kręci</button>
+        <div class="team-name">Drużyna Leszka</div>
+        <div class="score-display" id="scoreLeszek">0</div>
+        <button class="spin-btn-team" id="btnLeszek">Leszek kręci</button>
     </div>
 
     <div class="result-display" id="resultDisplay">Wynik: -</div>
+
+    <div class="music-section">
+        <div class="music-title">🎵 Konkurs muzyczny: Odgadnij dalszy ciąg 🎵</div>
+        <div class="music-grid">
+            <button class="music-btn btn-p" onclick="playTrack('Parostatek pytanie.m4a', this)">
+                1P
+                <span>Parostatek</span>
+            </button>
+            <button class="music-btn btn-w" onclick="playTrack('Parostatek wynik.m4a', this)">
+                1W
+                <span>Parostatek</span>
+            </button>
+            <button class="music-btn btn-p" onclick="playTrack('powiedz pytanie.m4a', this)">
+                2P
+                <span>Powiedz</span>
+            </button>
+            <button class="music-btn btn-w" onclick="playTrack('powiedz wynik.m4a', this)">
+                2W
+                <span>Powiedz</span>
+            </button>
+            <button class="music-btn btn-p" onclick="playTrack('mandacik pytanie.m4a', this)">
+                3P
+                <span>Mandacik</span>
+            </button>
+            <button class="music-btn btn-w" onclick="playTrack('mandacik wynik.m4a', this)">
+                3W
+                <span>Mandacik</span>
+            </button>
+            <button class="music-stop-btn" onclick="stopAudio()">STOP</button>
+        </div>
+    </div>
+
 </div>
 
 <script>
-    const segments = ["5", "10", "25", "50", "-50", "-25", "kręć\n2 razy"];
+    const segments = ["5", "10", "50", "25", "-50", "-25", "kręć\n2 razy"];
     const colors = ["#1a1a1a", "#d4af37", "#333333", "#b8901c", "#222222", "#e5c158", "#444444"];
     
     const numSegments = segments.length;
     const anglePerSegment = 360 / numSegments;
     const wheelGroup = document.getElementById('wheel-group');
 
-    // Generowanie pól SVG
+    // Generowanie pól SVG koła
     for (let i = 0; i < numSegments; i++) {
         const startAngle = i * anglePerSegment;
         const endAngle = startAngle + anglePerSegment;
@@ -253,7 +390,6 @@
         wheelGroup.appendChild(textG);
     }
 
-    // Zmienne stanu gry
     const wheel = document.getElementById('wheel');
     const resultDisplay = document.getElementById('resultDisplay');
     const btnLeszek = document.getElementById('btnLeszek');
@@ -263,14 +399,14 @@
 
     let currentRotation = 0;
     let isSpinning = false;
-    let activePlayer = ""; // Przechowuje informację, kto kliknął ("Leszek" lub "Martyna")
+    let activePlayer = ""; 
 
     let scores = {
         Leszek: 0,
         Martyna: 0
     };
 
-    // --- SYNTEZA AUDIO ---
+    // --- SYNTEZA AUDIO DLA KOŁA ---
     let audioCtx = null;
     function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
 
@@ -325,7 +461,6 @@
         }, interval);
     }
 
-    // Wspólna funkcja uruchamiająca kręcenie
     function spinWheel(player) {
         if (isSpinning) return;
         
@@ -333,7 +468,6 @@
         isSpinning = true;
         activePlayer = player;
 
-        // Blokujemy oba przyciski podczas kręcenia
         btnLeszek.disabled = true;
         btnMartyna.disabled = true;
         resultDisplay.style.display = 'none';
@@ -350,11 +484,9 @@
         setTimeout(() => {
             isSpinning = false;
             
-            // Odblokowanie przycisków
             btnLeszek.disabled = false;
             btnMartyna.disabled = false;
 
-            // Obliczanie wylosowanego pola
             let actualAngle = (360 - (currentRotation % 360)) % 360;
             let winningIndex = Math.floor(actualAngle / anglePerSegment);
             winningIndex = (winningIndex + numSegments) % numSegments;
@@ -362,21 +494,24 @@
             const prizeRaw = segments[winningIndex];
             const prizeClean = prizeRaw.replace('\n', ' ');
 
-            // Logika punktacji
             if (prizeRaw.includes("kręć")) {
-                resultDisplay.innerText = `${activePlayer} losuje: ${prizeClean}!`;
+                resultDisplay.innerText = `Drużyna ${activePlayer === 'Leszek' ? 'Leszka' : 'Martyny'} losuje: ${prizeClean}!`;
             } else {
                 const points = parseInt(prizeRaw, 10);
                 scores[activePlayer] += points;
                 
-                // Aktualizacja tabeli wyników na ekranie
                 if (activePlayer === "Leszek") {
                     scoreLeszekEl.innerText = scores.Leszek;
                 } else {
                     scoreMartynaEl.innerText = scores.Martyna;
                 }
                 
-                resultDisplay.innerText = `${activePlayer} zdobywa: ${points} pkt!`;
+                const displayPlayerName = activePlayer === 'Leszek' ? 'Leszka' : 'Martyny';
+                if (points > 0) {
+                    resultDisplay.innerText = `Drużyna ${displayPlayerName} zdobywa: +${points} pkt!`;
+                } else {
+                    resultDisplay.innerText = `Drużyna ${displayPlayerName} traci: ${points} pkt!`;
+                }
             }
             
             resultDisplay.style.display = 'block';
@@ -384,9 +519,44 @@
         }, 7000);
     }
 
-    // Podpięcie zdarzeń pod przyciski drużynowe
     btnLeszek.addEventListener('click', () => spinWheel('Leszek'));
     btnMartyna.addEventListener('click', () => spinWheel('Martyna'));
+
+    // --- LOGIKA PLAYERA AUDIO DLA PIOSENEK ---
+    let currentAudio = null;
+    let currentMusicButton = null;
+
+    function playTrack(fileName, buttonElement) {
+        if (currentAudio && currentAudio.src.includes(encodeURIComponent(fileName))) {
+            stopAudio();
+            return;
+        }
+        stopAudio();
+
+        currentAudio = new Audio(fileName);
+        currentMusicButton = buttonElement;
+        currentMusicButton.classList.add('playing');
+
+        currentAudio.play().catch(error => {
+            alert("Nie znaleziono pliku audio. Upewnij się, że pliki m4a są wgrane na GitHub w tym samym folderze co index.html!");
+            stopAudio();
+        });
+
+        currentAudio.onended = function() {
+            stopAudio();
+        };
+    }
+
+    function stopAudio() {
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio = null;
+        }
+        if (currentMusicButton) {
+            currentMusicButton.classList.remove('playing');
+            currentMusicButton = null;
+        }
+    }
 </script>
 
 </body>
